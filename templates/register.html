@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register - HireCoach AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="container">
+                    <a href="{{ url_for('index') }}" class="logo">HireCoach AI</a>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="auth-form-section">
+                <h1>Register for HireCoach AI</h1>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('register') }}" method="POST">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" value="{{ username if username else '' }}" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password:</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <button type="submit" class="primary-btn">Register</button>
+                </form>
+                <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Log In here</a></p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 HireCoach AI. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

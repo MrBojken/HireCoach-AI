@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireCoach AI - Resume Optimizer Setup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="container">
+                    <a href="{{ url_for('index') }}" class="logo">HireCoach AI</a>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('interview_coach') }}">Interview Coach</a></li>
+                        <li><a href="{{ url_for('practice_interview') }}">Practice Interview</a></li>
+                        <li><a href="{{ url_for('resume_optimizer') }}">Resume Optimizer</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Optimize Your Resume</h1>
+            <p>Paste your resume and the job description below to get AI-powered feedback on how well they match and what you can improve.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('resume_optimizer') }}" method="post" class="interview-form">
+                <div class="form-group">
+                    <label for="resume_text">Your Resume Text:</label>
+                    <textarea id="resume_text" name="resume_text" rows="15" placeholder="Paste your resume content here..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="job_description">Job Description:</label>
+                    <textarea id="job_description" name="job_description" rows="15" placeholder="Paste the full job description here..." required></textarea>
+                </div>
+                <button type="submit" class="btn primary-btn">Get Resume Feedback</button>
+            </form>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 HireCoach AI. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

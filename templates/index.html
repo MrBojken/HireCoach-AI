@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>HireCoach AI - Your Personal Career Development Assistant</title><link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"><meta name="description" content="HireCoach AI helps you ace your interviews and optimize your resume with AI-powered insights and practice tools. Get job-ready with personalized feedback."><meta name="keywords" content="interview coach, practice interview, resume optimizer, AI career assistant, job preparation, interview tips, resume builder, career development"></head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="container">
+                    <a href="{{ url_for('index') }}" class="logo">HireCoach AI</a><ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        {% if 'user_id' in session %}
+                        <li><a href="{{ url_for('interview_coach') }}">Interview Coach</a></li>
+                        <li><a href="{{ url_for('practice_interview') }}">Practice Interview</a></li>
+                        <li><a href="{{ url_for('resume_optimizer') }}">Resume Optimizer</a></li>
+                        <li class="user-info">Hello, {{ session.get('username', 'User') }}!</li><li><a href="{{ url_for('logout') }}" class="btn secondary-btn">Logout</a></li>
+                        {% else %}
+                        <li><a href="{{ url_for('login') }}" class="btn primary-btn">Login</a></li>
+                        <li><a href="{{ url_for('register') }}" class="btn secondary-btn">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero-section">
+                <h1>Unlock Your Career Potential with HireCoach AI</h1>
+                <p class="tagline">Your AI-powered partner for mastering interviews, perfecting your resume, and landing your dream job. Get personalized feedback and actionable insights.</p>
+                <div class="btn-group-hero">
+                    <a href="{{ url_for('interview_coach') }}" class="btn primary-btn">Interview Coach</a>
+                    <a href="{{ url_for('resume_optimizer') }}" class="btn secondary-btn">Optimize Your Resume</a>
+                    <a href="{{ url_for('practice_interview') }}" class="btn primary-btn">Practice Interviews</a>
+                </div>
+            </section>
+
+            <section id="features-section" class="features-section">
+                <h2>Our Powerful Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Interview Coach</h3>
+                        <p>Get instant, tailored interview questions with ideal answers. Understand what recruiters are looking for and prepare effectively for any role.</p>
+                        <a href="{{ url_for('interview_coach') }}" class="btn primary-btn">Learn More & Start</a>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Practice Interview</h3>
+                        <p>Simulate a real interview experience. Answer AI-generated questions, get real-time feedback on your responses, and track your improvement.</p>
+                        <a href="{{ url_for('practice_interview') }}" class="btn primary-btn">Start Practicing</a>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Resume Optimizer</h3>
+                        <p>Elevate your resume to stand out from the crowd. Get a match score against any job description, identify weaknesses, and receive an AI-enhanced version ready for ATS.</p>
+                        <a href="{{ url_for('resume_optimizer') }}" class="btn primary-btn">Optimize My Resume</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="how-it-works-main-section">
+                <h2>How Each Feature Works</h2>
+
+                <div class="feature-how-it-works">
+                    <h3>How the Interview Coach Works</h3>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <h3>Select Role</h3>
+                            <p>Tell us your desired job position, experience level, and industry.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <h3>Get Questions & Answers</h3>
+                            <p>Receive AI-generated interview questions along with concise, ideal answers.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <h3>Learn & Prepare</h3>
+                            <p>Study the questions and answers to build confidence and refine your responses.</p>
+                        </div>
+                    </div>
+                    <div class="cta-small">
+                        <a href="{{ url_for('interview_coach') }}" class="btn primary-btn">Start Interview Coaching</a>
+                    </div>
+                </div>
+
+                <div class="feature-how-it-works">
+                    <h3>How the Practice Interview Works</h3>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <h3>Input Job Details</h3>
+                            <p>Provide the job position and your experience for tailored questions.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <h3>Answer Questions</h3>
+                            <p>Respond to AI-generated interview questions in a simulated environment.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <h3>Receive Instant Feedback</h3>
+                            <p>Get personalized AI feedback on your answers, highlighting areas for improvement.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">4</div>
+                            <h3>Review & Improve</h3>
+                            <p>See an overall performance summary and use detailed feedback to enhance your interview skills.</p>
+                        </div>
+                    </div>
+                    <div class="cta-small">
+                        <a href="{{ url_for('practice_interview') }}" class="btn primary-btn">Start Practice Interview</a>
+                    </div>
+                </div>
+
+                <div class="feature-how-it-works">
+                    <h3>How the Resume Optimizer Works</h3>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <h3>Upload Resume & Job Description</h3>
+                            <p>Paste your current resume and the job description you're applying for.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <h3>Get Instant Analysis</h3>
+                            <p>Receive a match score and detailed feedback on your original resume's weaknesses.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <h3>Download Optimized Resume</h3>
+                            <p>Get a professionally rewritten, ATS-friendly resume tailored to the job.</p>
+                        </div>
+                    </div>
+                    <div class="cta-small">
+                        <a href="{{ url_for('resume_optimizer') }}" class="btn primary-btn">Optimize My Resume</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="call-to-action-section">
+                <h2>Ready to Land Your Dream Job?</h2>
+                <p>HireCoach AI is here to guide you every step of the way. Start your journey to success today!</p>
+                <div class="btn-group-hero">
+                    <a href="#top" class="btn primary-btn">Get Started Now</a>
+                    <a href="#features-section" class="btn secondary-btn">Explore Features</a>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 HireCoach AI. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Smooth scrolling for anchor links within the page
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault(); // Prevent default jump behavior
+
+                const targetId = this.getAttribute('href').substring(1); // Get the ID from the href
+                let targetElement;
+
+                // Determine the target element for scrolling
+                if (targetId === 'top') {
+                    targetElement = document.body; // Scroll to the very top of the document
+                } else {
+                    targetElement = document.getElementById(targetId); // Get element by ID
+                }
+                
+                // Perform smooth scroll if target element exists
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop, // Scroll to the element's top position
+                        behavior: 'smooth' // Enable smooth scrolling animation
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

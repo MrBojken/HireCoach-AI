@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireCoach AI - Practice Interview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="container">
+                    <a href="{{ url_for('index') }}" class="logo">HireCoach AI</a>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('interview_coach') }}">Interview Coach</a></li>
+                        <li><a href="{{ url_for('practice_interview') }}">Practice Interview</a></li>
+                        <li><a href="{{ url_for('resume_optimizer') }}">Resume Optimizer</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Practice Interview Session</h1>
+            <p>Answer the questions below as if you were in a real interview. You'll get immediate feedback on your responses.</p>
+            <p>You are practicing for a **{{ job_position }}** position.</p>
+
+            <div id="practice-question-area" class="question-container">
+                <p>Loading practice question...</p>
+            </div>
+
+            <div class="user-answer-section">
+                <label for="user-answer">Your Answer:</label>
+                <textarea id="user-answer" placeholder="Type your answer here..." rows="8"></textarea>
+                <button id="submit-answer-btn" onclick="submitAnswer()">Submit Answer & Get Feedback</button>
+            </div>
+
+            <div id="feedback-area" class="feedback-container" style="display: none;">
+                <h3>Feedback:</h3>
+                <p id="feedback-text"></p>
+            </div>
+
+            <div class="navigation-buttons">
+                <button id="prev-btn" onclick="navigateQuestion(-1)" disabled>Previous</button>
+                <button id="next-btn" onclick="navigateQuestion(1)" disabled>Next Question</button>
+                <button id="show-results-btn" class="btn primary-btn" style="display: none;">Show My Results</button>
+            </div>
+            <div class="current-question-indicator">
+                Question <span id="current-q-num">1</span> of <span id="total-q-num">5</span>
+            </div>
+
+            </main>
+
+        <footer>
+            <p>&copy; 2025 HireCoach AI. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p id="loading-message">Loading question...</p>
+        <p>This may take a moment.</p>
+    </div>
+
+    <script>
+        const practiceQuestionArea = document.getElementById('practice-question-area');
+        const userAnswerTextarea = document.getElementById('user-answer');
+        const submitAnswerBtn = document.getElementById('submit-answer-btn');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackText = document.getElementById('feedback-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentQNumSpan = document.getElementById('current-q-num');
+        const totalQNumSpan = document.getElementById('total-q-num');
+        const showResultsBtn = document.getElementById('show-results-btn'); // New button reference
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingMessage = document.getElementById('loading-message');
+
+        let currentPracticeIndex = 0; // Tracks the currently displayed practice question
+        const MAX_PRACTICE_QUESTIONS = 5; // Matches backend constant
+
+        // Store user answers and feedback locally for faster navigation
+        // This will be an array of objects: [{question: "", userAnswer: "", feedback: ""}, ...]
+        let practiceSessionData = [];
+
+        function toggleLoading(show, message = "Loading...") {
+            loadingMessage.textContent = message;
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // --- Fetch and Display Question ---
+        async function fetchAndDisplayPracticeQuestion(index) {
+            toggleLoading(true, "Loading question...");
+            try {
+                // If question data is already in our local array, use it
+                if (practiceSessionData[index]) {
+                    displayQuestionFromLocal(index);
+                    updateUI(); // Update buttons immediately
+                    toggleLoading(false);
+                    return;
+                }
+
+                // Otherwise, fetch from backend (which fetches from session)
+                const response = await fetch(`/practice-interview-question/${index}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    practiceQuestionArea.innerHTML = `<h3>Question ${data.index + 1}: ${data.question}</h3>`;
+                    currentPracticeIndex = data.index;
+
+                    // Initialize the local practiceSessionData for this new question
+                    practiceSessionData[index] = {
+                        question: data.question,
+                        userAnswer: '', // New question, no answer yet
+                        feedback: ''    // No feedback yet
+                    };
+
+                    // --- IMPORTANT: Reset UI for a brand new (unanswered) question ---
+                    userAnswerTextarea.value = ''; // Clear textarea
+                    userAnswerTextarea.readOnly = false; // Make it writable
+                    submitAnswerBtn.style.display = 'block'; // Show submit button
+                    submitAnswerBtn.disabled = false; // Enable submit button
+
+                    feedbackArea.style.display = 'none'; // Hide feedback
+                    feedbackText.textContent = ''; // Clear feedback text
+
+                    updateUI(); // Update navigation buttons based on current state
+                } else {
+                    console.error('Error fetching practice question:', data.error);
+                    practiceQuestionArea.innerHTML = `<p class="error-message">Error: ${data.error}.</p>`;
+                    // Disable all interaction on error
+                    userAnswerTextarea.disabled = true;
+                    submitAnswerBtn.disabled = true;
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = true;
+                    showResultsBtn.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Network or parsing error fetching practice question:', error);
+                practiceQuestionArea.innerHTML = `<p class="error-message">A network error occurred. Please check your connection or try again.</p>`;
+                userAnswerTextarea.disabled = true;
+                submitAnswerBtn.disabled = true;
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                showResultsBtn.style.display = 'none';
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // --- Display Question from Local Data (for Back/Forward) ---
+        function displayQuestionFromLocal(index) {
+            const data = practiceSessionData[index];
+            practiceQuestionArea.innerHTML = `<h3>Question ${index + 1}: ${data.question}</h3>`;
+            userAnswerTextarea.value = data.userAnswer;
+
+            // Show feedback if it exists for this question
+            if (data.feedback) {
+                feedbackText.textContent = data.feedback;
+                feedbackArea.style.display = 'block';
+                userAnswerTextarea.readOnly = true; // Make textarea read-only if answered
+                submitAnswerBtn.style.display = 'none'; // Hide submit button if answered
+            } else {
+                // --- IMPORTANT: Reset UI for an unanswered question (e.g., navigating back to it) ---
+                feedbackArea.style.display = 'none';
+                feedbackText.textContent = '';
+                userAnswerTextarea.readOnly = false; // Make it writable
+                submitAnswerBtn.style.display = 'block'; // Show submit button
+                submitAnswerBtn.disabled = false; // Enable submit button
+            }
+            currentPracticeIndex = index;
+        }
+
+        // --- Submit Answer and Get Feedback ---
+        async function submitAnswer() {
+            const userAnswer = userAnswerTextarea.value.trim();
+            if (!userAnswer) {
+                alert('Please type your answer before submitting.');
+                return;
+            }
+
+            toggleLoading(true, "Evaluating your answer...");
+            submitAnswerBtn.disabled = true; // Prevent double submission
+            userAnswerTextarea.readOnly = true; // Make textarea read-only while evaluating
+
+            try {
+                const response = await fetch('/practice-evaluate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        index: currentPracticeIndex,
+                        user_answer: userAnswer
+                    })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.redirect) {
+                        // If backend signals redirect, it means all questions are done
+                        window.location.href = data.redirect;
+                    } else if (data.message) { // Individual feedback received, not a redirect
+                        feedbackText.textContent = data.feedback; // Assuming 'feedback' is returned on success now
+                        feedbackArea.style.display = 'block';
+
+                        // Store user answer and feedback locally
+                        practiceSessionData[currentPracticeIndex].userAnswer = userAnswer;
+                        practiceSessionData[currentPracticeIndex].feedback = data.feedback;
+
+                        // UI updates after successful submission:
+                        submitAnswerBtn.style.display = 'none'; // Hide submit button
+                        userAnswerTextarea.readOnly = true; // Keep textarea read-only
+
+                        updateUI(); // Update navigation buttons (e.g., enable Next)
+                    } else {
+                        // Handle unexpected successful response structure
+                        console.error('Unexpected successful response from /practice-evaluate:', data);
+                        feedbackText.textContent = 'Evaluation succeeded, but received unexpected data. Please try again.';
+                        feedbackArea.style.display = 'block';
+                        submitAnswerBtn.disabled = false;
+                        userAnswerTextarea.readOnly = false;
+                    }
+                } else {
+                    console.error('Error submitting answer:', data.error);
+                    feedbackText.textContent = `Error: ${data.error}. Please try again.`;
+                    feedbackArea.style.display = 'block';
+                    // Re-enable submission on error, make textarea writable
+                    submitAnswerBtn.disabled = false;
+                    userAnswerTextarea.readOnly = false;
+                    if (data.redirect) { // If server explicitly wants a redirect on error (e.g. session missing)
+                        window.location.href = data.redirect;
+                    }
+                }
+            } catch (error) {
+                console.error('Network or parsing error submitting answer:', error);
+                feedbackText.textContent = 'A network error occurred during evaluation. Please check your connection or try again.';
+                feedbackArea.style.display = 'block';
+                submitAnswerBtn.disabled = false;
+                userAnswerTextarea.readOnly = false;
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // --- Navigate Questions ---
+        function navigateQuestion(direction) {
+            let newIndex = currentPracticeIndex + direction;
+            if (newIndex >= 0 && newIndex < MAX_PRACTICE_QUESTIONS) {
+                fetchAndDisplayPracticeQuestion(newIndex);
+            }
+        }
+
+        // --- Update UI (Buttons, Indicators) ---
+        function updateUI() {
+            currentQNumSpan.textContent = currentPracticeIndex + 1;
+            totalQNumSpan.textContent = MAX_PRACTICE_QUESTIONS;
+
+            // Previous button
+            prevBtn.disabled = currentPracticeIndex === 0;
+
+            // Check if the current question has been answered locally
+            const currentQAnswered = practiceSessionData[currentPracticeIndex] && practiceSessionData[currentPracticeIndex].userAnswer;
+
+            // Next button logic and "Show My Results" button
+            if (currentQAnswered && currentPracticeIndex < MAX_PRACTICE_QUESTIONS - 1) {
+                nextBtn.disabled = false;
+                showResultsBtn.style.display = 'none'; // Hide "Show My Results"
+            } else if (currentQAnswered && currentPracticeIndex === MAX_PRACTICE_QUESTIONS - 1) {
+                nextBtn.disabled = true; // No more next questions
+                showResultsBtn.style.display = 'block'; // Show "Show My Results"
+            } else {
+                nextBtn.disabled = true;
+                showResultsBtn.style.display = 'none';
+            }
+
+            // Submit button visibility and textarea readonly state
+            if (currentQAnswered) {
+                submitAnswerBtn.style.display = 'none';
+                userAnswerTextarea.readOnly = true;
+                feedbackArea.style.display = 'block'; // Ensure feedback is shown if answered
+            } else {
+                submitAnswerBtn.style.display = 'block';
+                userAnswerTextarea.readOnly = false;
+                feedbackArea.style.display = 'none'; // Hide feedback if not answered yet
+                submitAnswerBtn.disabled = false; // Ensure it's not disabled if question is unanswered
+            }
+        }
+
+        // Event listener for the "Show My Results" button
+        showResultsBtn.addEventListener('click', () => {
+            window.location.href = "{{ url_for('practice_results') }}";
+        });
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndDisplayPracticeQuestion(0);
+        });
+    </script>
+</body>
+</html>

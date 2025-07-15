@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireCoach AI - Practice Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="container">
+                    <a href="{{ url_for('index') }}" class="logo">HireCoach AI</a>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('interview_coach') }}">Interview Coach</a></li>
+                        <li><a href="{{ url_for('practice_interview') }}">Practice Interview</a></li>
+                        <li><a href="{{ url_for('resume_optimizer') }}">Resume Optimizer</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Your Practice Interview Results</h1>
+            <p>Here's a summary of your performance for the **{{ job_details.position }}** interview.</p>
+
+            <div class="results-summary">
+                <div class="result-item">
+                    <h3>Estimated Hiring Percentage:</h3>
+                    <p class="percentage-display">{{ overall_feedback.hiring_percentage }}</p>
+                </div>
+                <div class="result-item">
+                    <h3>Areas for Improvement:</h3>
+                    <div class="areas-list">
+                        {% if overall_feedback.areas_for_improvement and overall_feedback.areas_for_improvement != 'N/A' %}
+                            <ul>
+                            {% for area in overall_feedback.areas_for_improvement.split('\n') %}
+                                {% if area.strip() %}<li>{{ area.strip() }}</li>{% endif %}
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No specific areas for improvement identified, keep up the great work!</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="result-item">
+                    <h3>Overall Feedback:</h3>
+                    <p class="overall-message">{{ overall_feedback.overall_message }}</p>
+                </div>
+            </div>
+
+            {% if practice_data %} {# Corrected variable name #}
+            <div class="detailed-review">
+                <h2>Detailed Practice Review</h2>
+                {% for data in practice_data %} {# Corrected variable name #}
+                <div class="question-review-card">
+                    <h4>Question {{ loop.index }}: {{ data.question }}</h4>
+                    <p><strong>Your Answer:</strong> {{ data.user_answer }}</p>
+                    <p><strong>Ideal Answer:</strong> {{ data.ideal_answer }}</p> {# Added Ideal Answer display #}
+                    <p><strong>AI Feedback:</strong> {{ data.ai_feedback }}</p> {# Corrected key name #}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="actions-after-results">
+                <a href="{{ url_for('practice_interview') }}" class="btn primary-btn">Start New Practice Session</a> {# Changed text for clarity #}
+                <a href="{{ url_for('index') }}" class="btn secondary-btn">Return to Home</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 HireCoach AI. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

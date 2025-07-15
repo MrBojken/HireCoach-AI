@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireCoach AI - Resume Optimization Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="container">
+                    <a href="{{ url_for('index') }}" class="logo">HireCoach AI</a>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('interview_coach') }}">Interview Coach</a></li>
+                        <li><a href="{{ url_for('practice_interview') }}">Practice Interview</a></li>
+                        <li><a href="{{ url_for('resume_optimizer') }}">Resume Optimizer</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Your Resume Optimization Results</h1>
+            <p>Here's how your original resume matched the job description, the Optimized Version, and an Analysis of changes.</p>
+
+            <div class="results-container">
+                <div class="results-column original-analysis-column">
+                    <h2>Original Resume Analysis</h2>
+                    <div class="match-score">
+                        <h3>Match Score: <span id="match-score-display">{{ results.match_score }}</span></h3>
+                        <p>{{ results.summary_message }}</p>
+                    </div>
+                    
+                    <h3>Original Areas for Improvement:</h3>
+                    <ul class="improvement-list">
+                        {% if results.original_improvements %}
+                            {% for area in results.original_improvements %}
+                                <li>{{ area }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No specific areas for improvement identified for the original resume.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="results-column optimized-resume-section">
+                    <h2>Optimized Resume</h2>
+                    <p>Copy and paste this improved resume text into your document. Remember to double-check formatting after pasting into your editor (e.g., Word, Google Docs).</p>
+                    <textarea id="optimized-resume-text" rows="30" readonly>{{ results.optimized_resume_text }}</textarea>
+                    <button onclick="copyOptimizedResume()" class="btn secondary-btn copy-button">Copy Optimized Resume</button>
+                </div>
+
+                <div class="results-column analysis-section">
+                    <h2>Analysis of Optimization Changes</h2>
+                    <div class="feedback-block">
+                        <p>{{ results.changes_analysis }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('resume_optimizer') }}" class="btn primary-btn">Optimize Another Resume</a>
+                <a href="{{ url_for('index') }}" class="btn secondary-btn">Back to Home</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 HireCoach AI. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        function copyOptimizedResume() {
+            const textarea = document.getElementById('optimized-resume-text');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand('copy');
+                alert('Optimized resume copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+                alert('Failed to copy. Please manually select and copy the text.');
+            }
+        }
+    </script>
+</body>
+</html>

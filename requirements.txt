@@ -1,0 +1,5 @@
+google-generativeai
+Flask
+python-dotenv
+Flask-SQLAlchemy
+Werkzeug

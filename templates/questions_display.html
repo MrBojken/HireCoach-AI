@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HireCoach AI - Interview Questions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="container">
+                    <a href="{{ url_for('index') }}" class="logo">HireCoach AI</a>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('interview_coach') }}">Interview Coach</a></li>
+                        <li><a href="{{ url_for('practice_interview') }}">Practice Interview</a></li>
+                        <li><a href="{{ url_for('resume_optimizer') }}">Resume Optimizer</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Your Interview Questions</h1>
+            <div id="question-display-area" class="question-container">
+                <p>Loading question...</p>
+                </div>
+
+<div class="navigation-buttons">
+                <button id="prev-btn" onclick="navigateQuestion(-1)" disabled>Previous</button>
+                <button id="show-answer-btn" onclick="toggleAnswer()">Show Answer</button>
+                <button id="next-btn" onclick="navigateQuestion(1)">Next</button>
+            </div>
+            <div class="current-question-indicator">
+                Question <span id="current-q-num">1</span> of <span id="total-q-num">5</span> </div>
+
+            <div id="finish-interview-section" class="finish-section" style="display: none;">
+                <h2>All Questions Reviewed!</h2>
+                <p>You've completed this session. Ready to practice what you've learned?</p>
+                <a href="{{ url_for('practice_interview') }}" class="btn primary-btn">Go to Practice Interview</a> </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 HireCoach AI. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Generating next question...</p>
+        <p>This may take a moment.</p>
+    </div>
+
+    <script>
+        const questionDisplayArea = document.getElementById('question-display-area');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const currentQNumSpan = document.getElementById('current-q-num');
+        const totalQNumSpan = document.getElementById('total-q-num');
+        const finishInterviewSection = document.getElementById('finish-interview-section');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        let currentQuestionIndex = 0;
+        let totalQuestionsAvailable = 0;
+
+        const MAX_QUESTIONS = 5; // CHANGED FROM 10 TO 5
+
+        function toggleLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        async function fetchAndDisplayQuestion(index) {
+            toggleLoading(true);
+            try {
+                const response = await fetch(`/get-question/${index}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    questionDisplayArea.innerHTML = `
+                        <h3>Question ${data.index + 1}: ${data.question}</h3>
+                        <p id="current-answer" style="display: none;"><strong>Ideal Answer:</strong> ${data.answer}</p>
+                    `;
+                    currentQuestionIndex = data.index;
+                    totalQuestionsAvailable = data.total; // Reflects server's max allowed
+                    updateUI();
+                } else {
+                    console.error('Error fetching question:', data.error);
+                    questionDisplayArea.innerHTML = `<p class="error-message">Error: ${data.error}. Please go back and try again.</p>`;
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = true;
+                    showAnswerBtn.disabled = true;
+                    finishInterviewSection.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Network or parsing error:', error);
+                questionDisplayArea.innerHTML = `<p class="error-message">A network error occurred. Please check your connection or try again.</p>`;
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                showAnswerBtn.disabled = true;
+                finishInterviewSection.style.display = 'none';
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        function updateUI() {
+            currentQNumSpan.textContent = currentQuestionIndex + 1;
+            totalQNumSpan.textContent = MAX_QUESTIONS; // Always show the client-side MAX_QUESTIONS
+
+            prevBtn.disabled = currentQuestionIndex === 0;
+            showAnswerBtn.disabled = false;
+            document.getElementById('current-answer').style.display = 'none';
+
+            // Next button logic: Enable if we can still generate more questions
+            // or if there are already more questions in the session
+            if (currentQuestionIndex < MAX_QUESTIONS - 1) { // If not yet at the final question
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.disabled = true; // At the last question (index MAX_QUESTIONS - 1)
+            }
+
+            // Finish Interview button logic
+            if (currentQuestionIndex === MAX_QUESTIONS - 1) {
+                finishInterviewSection.style.display = 'block';
+            } else {
+                finishInterviewSection.style.display = 'none';
+            }
+        }
+
+        function navigateQuestion(direction) {
+            let newIndex = currentQuestionIndex + direction;
+            // Ensure newIndex is within valid range (0 to MAX_QUESTIONS - 1)
+            if (newIndex >= 0 && newIndex < MAX_QUESTIONS) {
+                fetchAndDisplayQuestion(newIndex);
+            }
+        }
+
+        function toggleAnswer() {
+            const answerElement = document.getElementById('current-answer');
+            if (answerElement) {
+                answerElement.style.display = answerElement.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndDisplayQuestion(0);
+        });
+    </script>
+</body>
+</html>
