@@ -6,10 +6,8 @@ import re # Provides regular expression operations, used for parsing text
 import google.generativeai as genai # Imports the Google Generative AI client library for interacting with Gemini models
 from google.api_core.exceptions import DeadlineExceeded, GoogleAPIError # Handles specific exceptions from Google API calls, like timeouts or general errors
 import json # Used for serializing and deserializing JSON data, especially for database storage
-
-# Imports for user authentication and database management
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy # Imports for user authentication and database management
+from werkzeug.security import generate_password_hash, check_password_hash # Imports for generation of password hash and checking of it
 
 # Configure the logging system for application monitoring and debugging
 # Logs informational messages, warnings, and errors with timestamps

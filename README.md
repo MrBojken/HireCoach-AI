@@ -1,6 +1,6 @@
-HireCoach AI
-Video Demo:
-Description:
+# HireCoach AI
+#### Video Demo: https://youtu.be/V9GvmP-fZr8
+#### Description:
 HireCoach AI is a comprehensive web application designed to empower job seekers by providing intelligent, AI-powered tools for interview preparation and resume optimization. Built with Flask, SQLAlchemy, and leveraging the Google Gemini API, this platform offers a streamlined and interactive experience to help users enhance their hiring prospects. The application is secured with user authentication, ensuring a personalized and private experience for each user.
 
 Core Features
